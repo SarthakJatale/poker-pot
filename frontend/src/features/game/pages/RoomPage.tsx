@@ -1,7 +1,8 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { LoadingSpinner } from '../../../shared/components';
-import { useSocket, useAppState } from '../../../shared/hooks';
+import { useSocket } from '../../../shared/hooks';
+import { useAppStore } from '../../../shared/store/appStore';
 import { ROUTES } from '../../../app/routes';
 import type { RouteParams } from '../../../app/routes';
 import type { Room } from '../../../shared/types/room.types';
@@ -15,7 +16,7 @@ const RoomPage: React.FC = () => {
   const { roomId } = useParams<RouteParams>();
   const navigate = useNavigate();
   const { socket } = useSocket();
-  const appState = useAppState();
+  const { room, currentPlayer, gameState, updateRoom, updateCurrentPlayer, updateGameState, setError, reset } = useAppStore();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -33,20 +34,20 @@ const RoomPage: React.FC = () => {
     }
 
     const handleRoomUpdated = (room: Room) => {
-      appState.updateRoom(room);
-      if (appState.currentPlayer) {
-        const updatedPlayer = room.players.find((p: Player) => p.id === socket.id) || appState.currentPlayer;
-        appState.updateCurrentPlayer(updatedPlayer);
+      updateRoom(room);
+      if (currentPlayer) {
+        const updatedPlayer = room.players.find((p: Player) => p.id === socket.id) || currentPlayer;
+        updateCurrentPlayer(updatedPlayer);
       }
       setIsLoading(false);
     };
 
     const handleGameStarted = (gameState: GameState) => {
-      appState.updateGameState(gameState);
+      updateGameState(gameState);
     };
 
     const handleGameUpdated = (gameState: GameState) => {
-      appState.updateGameState(gameState);
+      updateGameState(gameState);
     };
 
     const handlePlayerJoined = (player: Player) => {
@@ -58,7 +59,7 @@ const RoomPage: React.FC = () => {
     };
 
     const handleError = (message: string) => {
-      appState.setError(message);
+      setError(message);
       // If room doesn't exist or other critical error, go back to home
       if (message.includes('Room not found') || message.includes('does not exist')) {
         navigate(ROUTES.HOME);
@@ -75,7 +76,7 @@ const RoomPage: React.FC = () => {
 
     // If we don't have room data, it means user navigated directly to room URL
     // We need to handle this case appropriately
-    if (!appState.room || appState.room.id !== roomId) {
+    if (!room || room.id !== roomId) {
       // For now, redirect to home if we don't have room data
       // In the future, we could try to fetch room data from server
       console.log('No room data available, redirecting to home');
@@ -101,7 +102,7 @@ const RoomPage: React.FC = () => {
     if (socket) {
       socket.emit('leave-room');
     }
-    appState.reset();
+    reset();
     navigate(ROUTES.HOME);
   };
 
@@ -113,7 +114,7 @@ const RoomPage: React.FC = () => {
     );
   }
 
-  if (!appState.room || !appState.currentPlayer) {
+  if (!room || !currentPlayer) {
     return (
       <div className="room-page">
         <div className="error-message">
@@ -132,9 +133,9 @@ const RoomPage: React.FC = () => {
       <Suspense fallback={<LoadingSpinner message="Loading game room..." />}>
         <GameRoom
           socket={socket}
-          room={appState.room}
-          currentPlayer={appState.currentPlayer}
-          gameState={appState.gameState}
+          room={room}
+          currentPlayer={currentPlayer}
+          gameState={gameState}
           onLeaveRoom={handleLeaveRoom}
         />
       </Suspense>

@@ -12,7 +12,7 @@ export const config = {
 
   // CORS Configuration
   cors: {
-    origin: process.env.CORS_ORIGIN || 'https://pokerpot.vercel.app',
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] as string[],
   },
@@ -20,7 +20,7 @@ export const config = {
   // Socket.IO Configuration
   socket: {
     cors: {
-      origin: process.env.CORS_ORIGIN || 'https://pokerpot.vercel.app',
+      origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] as string[],
       credentials: true,
     },

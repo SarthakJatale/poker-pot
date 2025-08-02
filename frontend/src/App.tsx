@@ -1,14 +1,15 @@
 import { useEffect } from 'react';
 import { AppRouter } from './app';
 import { ErrorBoundary } from './shared/components';
-import { useSocket, useAppState } from './shared/hooks';
+import { useSocket } from './shared/hooks';
+import { useAppStore } from './shared/store/appStore';
 import type { Player } from './shared/types/player.types';
 import type { Room } from './shared/types/room.types';
 import './App.css';
 
 function App() {
   const { socket } = useSocket();
-  const appState = useAppState();
+  const { error, updateRoom, updateCurrentPlayer, setError, clearError } = useAppStore();
 
   useEffect(() => {
     if (!socket) return;
@@ -19,25 +20,25 @@ function App() {
 
     const handleDisconnect = () => {
       console.log('Disconnected from server');
-      appState.setError('Connection lost. Please refresh the page.');
+      setError('Connection lost. Please refresh the page.');
     };
 
     const handleError = (message: string) => {
-      appState.setError(message);
+      setError(message);
     };
 
     const handleRoomCreated = (data: { roomId: string; room: Room }) => {
-      appState.updateRoom(data.room);
+      updateRoom(data.room);
       const currentPlayer = data.room.players.find((p: Player) => p.id === socket.id) || null;
-      appState.updateCurrentPlayer(currentPlayer);
-      appState.setError(null);
+      updateCurrentPlayer(currentPlayer);
+      setError(null);
     };
 
     const handleRoomJoined = (data: { room: Room; playerId: string }) => {
-      appState.updateRoom(data.room);
+      updateRoom(data.room);
       const currentPlayer = data.room.players.find((p: Player) => p.id === data.playerId) || null;
-      appState.updateCurrentPlayer(currentPlayer);
-      appState.setError(null);
+      updateCurrentPlayer(currentPlayer);
+      setError(null);
     };
 
     // Set up socket listeners
@@ -54,15 +55,15 @@ function App() {
       socket.off('room-created', handleRoomCreated);
       socket.off('room-joined', handleRoomJoined);
     };
-  }, [socket, appState]);
+  }, [socket]);
 
   return (
     <ErrorBoundary>
       <div className="app">
-        {appState.error && (
+        {error && (
           <div className="error-banner">
-            <span>{appState.error}</span>
-            <button onClick={appState.clearError}>×</button>
+            <span>{error}</span>
+            <button onClick={clearError}>×</button>
           </div>
         )}
         
