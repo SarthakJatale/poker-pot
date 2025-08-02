@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Socket } from 'socket.io-client';
+import { useToastActions } from '../../../shared/hooks';
 import type { Player } from '../../../shared/types/player.types';
 import type { GameState } from '../../../shared/types/game.types';
 import type { Room } from '../../../shared/types/room.types';
@@ -19,6 +20,7 @@ const GameControls: React.FC<GameControlsProps> = ({
   room 
 }) => {
   const [raiseAmount, setRaiseAmount] = useState(1);
+  const { showError } = useToastActions();
   
   const connectedPlayers = room.players.filter((p: Player) => p.isConnected && !p.hasFolded);
   const currentTurnPlayer = connectedPlayers[gameState.currentTurn];
@@ -44,7 +46,26 @@ const GameControls: React.FC<GameControlsProps> = ({
   }
 
   const handleAction = (action: string, amount?: number) => {
-    if (!socket) return;
+    if (!socket) {
+      showError('Connection Error', 'Not connected to server. Please refresh the page.');
+      return;
+    }
+    
+    // Validate action before sending
+    if (action === 'call' && !canCall) {
+      showError('Insufficient Funds', 'You do not have enough balance to call.');
+      return;
+    }
+    
+    if (action === 'raise' && !canRaise) {
+      showError('Insufficient Funds', 'You do not have enough balance to raise.');
+      return;
+    }
+    
+    if (action === 'raise' && (!amount || amount <= 0)) {
+      showError('Invalid Raise Amount', 'Please enter a valid raise amount.');
+      return;
+    }
     
     socket.emit('player-action', {
       playerId: currentPlayer.id,

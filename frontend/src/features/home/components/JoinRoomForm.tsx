@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Socket } from 'socket.io-client';
 import { AVATARS } from '../../../shared/constants';
+import { useToastActions } from '../../../shared/hooks';
 import type { SocketEventMap } from '../../../shared/types';
 
 interface JoinRoomFormProps {
@@ -12,9 +13,30 @@ const JoinRoomForm: React.FC<JoinRoomFormProps> = ({ socket, onBack }) => {
   const [username, setUsername] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState<string>(AVATARS[0]);
   const [roomId, setRoomId] = useState('');
+  const { showError, showInfo } = useToastActions();
 
   const handleJoinRoom = () => {
-    if (!socket || !username.trim() || !roomId.trim()) return;
+    if (!socket) {
+      showError('Connection Error', 'Not connected to server. Please refresh the page.');
+      return;
+    }
+    
+    if (!username.trim()) {
+      showError('Username Required', 'Please enter a username to join the room.');
+      return;
+    }
+    
+    if (!roomId.trim()) {
+      showError('Room ID Required', 'Please enter a room ID to join.');
+      return;
+    }
+    
+    if (roomId.length !== 6) {
+      showError('Invalid Room ID', 'Room ID must be exactly 6 characters long.');
+      return;
+    }
+    
+    showInfo('Joining Room...', `Attempting to join room ${roomId.toUpperCase()}`);
     
     socket.emit('join-room', {
       roomId: roomId.toUpperCase(),

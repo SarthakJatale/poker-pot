@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Socket } from 'socket.io-client';
+import { useToastActions } from '../../../shared/hooks';
 import type { Room } from '../../../shared/types/room.types';
 import type { GameState } from '../../../shared/types/game.types';
 import type { RoomSettings } from '../../../shared/types/room.types';
@@ -16,6 +17,7 @@ const HostControls: React.FC<HostControlsProps> = ({ socket, room, gameState }) 
   const [showBalanceUpdate, setShowBalanceUpdate] = useState(false);
   const [selectedPlayerId, setSelectedPlayerId] = useState('');
   const [newBalance, setNewBalance] = useState(0);
+  const { showSuccess, showError } = useToastActions();
   
   const [settings, setSettings] = useState<RoomSettings>({
     initialBalance: room.settings.initialBalance,
@@ -24,14 +26,39 @@ const HostControls: React.FC<HostControlsProps> = ({ socket, room, gameState }) 
   });
 
   const handleUpdateSettings = () => {
-    if (!socket) return;
+    if (!socket) {
+      showError('Connection Error', 'Not connected to server. Please refresh the page.');
+      return;
+    }
     
+    if (settings.initialBetAmount >= settings.initialBalance) {
+      showError('Invalid Settings', 'Initial bet amount must be less than initial balance.');
+      return;
+    }
+    
+    showSuccess('Settings Updated', 'Room settings have been updated successfully.');
     socket.emit('update-settings', settings);
     setShowSettings(false);
   };
 
   const handleUpdateBalance = () => {
-    if (!socket || !selectedPlayerId) return;
+    if (!socket) {
+      showError('Connection Error', 'Not connected to server. Please refresh the page.');
+      return;
+    }
+    
+    if (!selectedPlayerId) {
+      showError('Player Selection Required', 'Please select a player to update their balance.');
+      return;
+    }
+    
+    if (newBalance < 0) {
+      showError('Invalid Balance', 'Balance cannot be negative.');
+      return;
+    }
+    
+    const playerName = room.players.find(p => p.id === selectedPlayerId)?.username || 'Player';
+    showSuccess('Balance Update Sent', `Balance update request sent for ${playerName}.`);
     
     socket.emit('update-balance', {
       playerId: selectedPlayerId,

@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { LoadingSpinner } from '../../../shared/components';
-import { useSocket } from '../../../shared/hooks';
+import { useSocket, useSocketToasts } from '../../../shared/hooks';
 import { useAppStore } from '../../../shared/store/appStore';
 import { ROUTES } from '../../../app/routes';
 import type { RouteParams } from '../../../app/routes';
@@ -18,6 +18,9 @@ const RoomPage: React.FC = () => {
   const { socket } = useSocket();
   const { room, currentPlayer, gameState, updateRoom, updateCurrentPlayer, updateGameState, setError, reset } = useAppStore();
   const [isLoading, setIsLoading] = useState(true);
+
+  // Enable socket-level toast notifications
+  useSocketToasts(socket);
 
   useEffect(() => {
 

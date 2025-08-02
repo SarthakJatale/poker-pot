@@ -38,7 +38,7 @@ class PokerServer {
 
     io.on('connection', (socket) => {
       Logger.info(`Socket connected`, { socketId: socket.id, totalConnections: io.engine.clientsCount });
-      new SocketController(socket);
+      new SocketController(socket, io);
     });
 
     return io;

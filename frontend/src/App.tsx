@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { AppRouter } from './app';
-import { ErrorBoundary } from './shared/components';
-import { useSocket } from './shared/hooks';
+import { ErrorBoundary, ToastContainer } from './shared/components';
+import { ToastProvider, useSocket } from './shared/hooks';
 import { useAppStore } from './shared/store/appStore';
 import type { Player } from './shared/types/player.types';
 import type { Room } from './shared/types/room.types';
@@ -59,16 +59,19 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <div className="app">
-        {error && (
-          <div className="error-banner">
-            <span>{error}</span>
-            <button onClick={clearError}>×</button>
-          </div>
-        )}
-        
-        <AppRouter />
-      </div>
+      <ToastProvider maxToasts={4}>
+        <div className="app">
+          {error && (
+            <div className="error-banner">
+              <span>{error}</span>
+              <button onClick={clearError}>×</button>
+            </div>
+          )}
+          
+          <AppRouter />
+          <ToastContainer />
+        </div>
+      </ToastProvider>
     </ErrorBoundary>
   );
 }

@@ -73,6 +73,7 @@ export interface SocketEvents {
   'balance-update-request': (data: { playerId: string; newBalance: number; requestedBy: string }) => void;
   'balance-updated': (data: { playerId: string; newBalance: number }) => void;
   'error': (message: string) => void;
+  'toast': (toast: { type: 'success' | 'error' | 'warning' | 'info'; title: string; message?: string; duration?: number }) => void;
   'round-ended': (data: { winnerId?: string; pot: number }) => void;
 }
 

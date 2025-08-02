@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Socket } from 'socket.io-client';
 import { AVATARS, DEFAULT_ROOM_SETTINGS } from '../../../shared/constants';
+import { useToastActions } from '../../../shared/hooks';
 import type { SocketEventMap } from '../../../shared/types';
 import type { RoomSettings } from '../../../shared/types/room.types';
 
@@ -13,9 +14,25 @@ const CreateRoomForm: React.FC<CreateRoomFormProps> = ({ socket, onBack }) => {
   const [username, setUsername] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState<string>(AVATARS[0]);
   const [settings, setSettings] = useState<RoomSettings>(DEFAULT_ROOM_SETTINGS);
+  const { showError, showInfo } = useToastActions();
 
   const handleCreateRoom = () => {
-    if (!socket || !username.trim()) return;
+    if (!socket) {
+      showError('Connection Error', 'Not connected to server. Please refresh the page.');
+      return;
+    }
+    
+    if (!username.trim()) {
+      showError('Username Required', 'Please enter a username to create a room.');
+      return;
+    }
+    
+    if (settings.initialBetAmount >= settings.initialBalance) {
+      showError('Invalid Settings', 'Initial bet amount must be less than initial balance.');
+      return;
+    }
+    
+    showInfo('Creating Room...', 'Please wait while we create your room.');
     
     socket.emit('create-room', {
       username: username.trim(),
