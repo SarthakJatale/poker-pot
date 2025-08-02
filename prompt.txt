@@ -1,0 +1,29 @@
+I want to create a poker game's pot calculator using typescript as frontend and  a server implementation for socket connections. Basic features of the app include:
+1. Home page has avatar selection, username input field, join room and create room
+2. Room host can configure the following:
+- initial balance of each player
+- increase or decrease each player's balance (player will confirm).
+- initial bet amount
+3. Dealer rotates after every winner
+4. Gameplay is as follows:
+- The purpose of this app is to calculate the balance, bets, etc., of each player, card dealing is not needed.
+- The dealer plays small blind (has to put initial bet in the pot set by the host) and the player next to dealer in the round plays big blind (has to see their cards and put double the amount of initial bet)
+- Every player can:
+-- fold
+-- play Seen - see cards and put double the amount of initial bet
+-- play Blind - does not see cards and put the initial bet amount 
+- Once a round is complete, the first three cards on the table are shown
+- Dealer and the next players have the following options:
+-- fold
+-- play 'Seen'
+-- play 'Blind' only if they haven't seen their cards
+-- check (will have to play either of the three above if any of the next players do)
+-- raise (in multiples of initial amount - minimum bet amount changes to the raised one)
+- Two more rounds are played and one card on the table is shown in each round until all 5 cards on the table are shown
+
+Create a boilerplate codebase which includes all of the features mentioned above. The codebase should follow best coding practices and should be focused on:
+- reliability
+- error handling
+- readability
+- maintainability
+- debugging ease
