@@ -5,7 +5,7 @@ import GameRoom from './components/GameRoom';
 import type { Room, Player, GameState, SocketEventMap } from './types';
 import './App.css';
 
-const SOCKET_URL = 'http://localhost:3001';
+const SOCKET_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
 
 interface AppState {
   currentView: 'home' | 'room';
