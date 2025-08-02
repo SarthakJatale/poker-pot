@@ -93,3 +93,31 @@
 .error-content button:hover {
   background-color: #c82333;
 }
+
+/* Page layouts */
+.room-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  padding: 2rem;
+}
+
+.error-message h2 {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.error-message p {
+  margin-bottom: 2rem;
+  color: #666;
+  max-width: 400px;
+}
