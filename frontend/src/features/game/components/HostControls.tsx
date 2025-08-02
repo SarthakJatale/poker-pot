@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Socket } from 'socket.io-client';
-import type { Room, GameState, SocketEventMap, RoomSettings } from '../types';
+import type { Room } from '../../../shared/types/room.types';
+import type { GameState } from '../../../shared/types/game.types';
+import type { RoomSettings } from '../../../shared/types/room.types';
+import type { SocketEventMap } from '../../../shared/types';
 
 interface HostControlsProps {
   socket: Socket<SocketEventMap, SocketEventMap> | null;
@@ -8,7 +11,7 @@ interface HostControlsProps {
   gameState: GameState;
 }
 
-export default function HostControls({ socket, room, gameState }: HostControlsProps) {
+const HostControls: React.FC<HostControlsProps> = ({ socket, room, gameState }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showBalanceUpdate, setShowBalanceUpdate] = useState(false);
   const [selectedPlayerId, setSelectedPlayerId] = useState('');
@@ -190,4 +193,6 @@ export default function HostControls({ socket, room, gameState }: HostControlsPr
       )}
     </div>
   );
-}
+};
+
+export default HostControls;

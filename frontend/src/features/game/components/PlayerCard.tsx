@@ -1,5 +1,7 @@
+import React from 'react';
 import { Socket } from 'socket.io-client';
-import type { Player, SocketEventMap } from '../types';
+import type { Player } from '../../../shared/types/player.types';
+import type { SocketEventMap } from '../../../shared/types';
 
 interface PlayerCardProps {
   player: Player;
@@ -9,7 +11,11 @@ interface PlayerCardProps {
   socket: Socket<SocketEventMap, SocketEventMap> | null;
 }
 
-export default function PlayerCard({ player, isCurrentPlayer, isCurrentTurn }: PlayerCardProps) {
+const PlayerCard: React.FC<PlayerCardProps> = ({ 
+  player, 
+  isCurrentPlayer, 
+  isCurrentTurn 
+}) => {
   return (
     <div className={`player-card ${isCurrentPlayer ? 'current-player' : ''} ${isCurrentTurn ? 'current-turn' : ''} ${player.hasFolded ? 'folded' : ''}`}>
       <div className="player-header">
@@ -47,4 +53,6 @@ export default function PlayerCard({ player, isCurrentPlayer, isCurrentTurn }: P
       )}
     </div>
   );
-}
+};
+
+export default PlayerCard;

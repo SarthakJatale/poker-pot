@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Socket } from 'socket.io-client';
-import type { Player, GameState, Room, SocketEventMap } from '../types';
+import type { Player } from '../../../shared/types/player.types';
+import type { GameState } from '../../../shared/types/game.types';
+import type { Room } from '../../../shared/types/room.types';
+import type { SocketEventMap } from '../../../shared/types';
 
 interface GameControlsProps {
   socket: Socket<SocketEventMap, SocketEventMap> | null;
@@ -9,13 +12,18 @@ interface GameControlsProps {
   room: Room;
 }
 
-export default function GameControls({ socket, currentPlayer, gameState, room }: GameControlsProps) {
+const GameControls: React.FC<GameControlsProps> = ({ 
+  socket, 
+  currentPlayer, 
+  gameState, 
+  room 
+}) => {
   const [raiseAmount, setRaiseAmount] = useState(1);
   
-  const connectedPlayers = room.players.filter(p => p.isConnected && !p.hasFolded);
+  const connectedPlayers = room.players.filter((p: Player) => p.isConnected && !p.hasFolded);
   const currentTurnPlayer = connectedPlayers[gameState.currentTurn];
   const isMyTurn = currentTurnPlayer?.id === currentPlayer.id;
-  const maxBet = Math.max(...connectedPlayers.map(p => p.currentBet));
+  const maxBet = Math.max(...connectedPlayers.map((p: Player) => p.currentBet));
   const needToCall = maxBet > currentPlayer.currentBet;
   const callAmount = maxBet - currentPlayer.currentBet;
 
@@ -127,4 +135,6 @@ export default function GameControls({ socket, currentPlayer, gameState, room }:
       </div>
     </div>
   );
-}
+};
+
+export default GameControls;

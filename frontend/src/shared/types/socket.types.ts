@@ -1,47 +1,6 @@
-export interface Player {
-  id: string;
-  username: string;
-  avatar: string;
-  balance: number;
-  isDealer: boolean;
-  hasSeenCards: boolean;
-  currentBet: number;
-  hasFolded: boolean;
-  isConnected: boolean;
-}
-
-export interface Room {
-  id: string;
-  hostId: string;
-  players: Player[];
-  gameState: GameState;
-  settings: RoomSettings;
-}
-
-export interface RoomSettings {
-  initialBalance: number;
-  initialBetAmount: number;
-  maxPlayers: number;
-}
-
-export interface GameState {
-  currentRound: number;
-  currentTurn: number;
-  pot: number;
-  minBetAmount: number;
-  dealerIndex: number;
-  cardsOnTable: number;
-  roundPhase: 'preflop' | 'flop' | 'turn' | 'river' | 'showdown';
-  isGameInProgress: boolean;
-  lastAction?: PlayerAction;
-}
-
-export interface PlayerAction {
-  playerId: string;
-  action: 'fold' | 'call' | 'raise' | 'check' | 'blind' | 'seen';
-  amount?: number;
-  timestamp: number;
-}
+import type { Room, RoomSettings } from './room.types';
+import type { Player, PlayerAction } from './player.types';
+import type { GameState } from './game.types';
 
 export interface SocketEvents {
   // Client to Server
@@ -70,20 +29,3 @@ export interface SocketEvents {
 export type SocketEventMap = {
   [K in keyof SocketEvents]: SocketEvents[K];
 };
-
-export const AVATARS = [
-  '👤', '👥', '🎭', '🎪', '🎨', '🎯', '🎲', '🃏',
-  '🦄', '🐱', '🐶', '🐻', '🦊', '🐼', '🐸', '🐙'
-];
-
-export interface CreateRoomData {
-  username: string;
-  avatar: string;
-  settings: RoomSettings;
-}
-
-export interface JoinRoomData {
-  roomId: string;
-  username: string;
-  avatar: string;
-}
