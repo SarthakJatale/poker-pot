@@ -14,14 +14,14 @@ const app = express();
 const server = createServer(app);
 const io = new Server<SocketEventMap, SocketEventMap>(server, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
-    methods: ["GET", "POST"],
+    origin: "https://poker-pot.vercel.app",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true
   }
 });
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  origin: "https://poker-pot.vercel.app",
   credentials: true
 }));
 app.use(express.json());
