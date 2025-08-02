@@ -19,8 +19,16 @@ const RoomPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!socket || !roomId) {
+
+    if (!roomId) {
+      console.log("RoomId is missing:", roomId);
       navigate(ROUTES.HOME);
+      return;
+    }
+
+    // Wait for socket to be available
+    if (!socket) {
+      console.log("Socket not yet available, waiting...");
       return;
     }
 
@@ -68,7 +76,9 @@ const RoomPage: React.FC = () => {
     // If we don't have room data, it means user navigated directly to room URL
     // We need to handle this case appropriately
     if (!appState.room || appState.room.id !== roomId) {
-      // Try to rejoin the room or redirect to home
+      // For now, redirect to home if we don't have room data
+      // In the future, we could try to fetch room data from server
+      console.log('No room data available, redirecting to home');
       setIsLoading(false);
       navigate(ROUTES.HOME);
     } else {
@@ -76,14 +86,16 @@ const RoomPage: React.FC = () => {
     }
 
     return () => {
-      socket.off('room-updated', handleRoomUpdated);
-      socket.off('game-started', handleGameStarted);
-      socket.off('game-updated', handleGameUpdated);
-      socket.off('player-joined', handlePlayerJoined);
-      socket.off('player-left', handlePlayerLeft);
-      socket.off('error', handleError);
+      if (socket) {
+        socket.off('room-updated', handleRoomUpdated);
+        socket.off('game-started', handleGameStarted);
+        socket.off('game-updated', handleGameUpdated);
+        socket.off('player-joined', handlePlayerJoined);
+        socket.off('player-left', handlePlayerLeft);
+        socket.off('error', handleError);
+      }
     };
-  }, [socket, roomId, navigate, appState]);
+  }, [socket, roomId, navigate]); // appState functions are stable due to useCallback
 
   const handleLeaveRoom = () => {
     if (socket) {
@@ -93,10 +105,10 @@ const RoomPage: React.FC = () => {
     navigate(ROUTES.HOME);
   };
 
-  if (isLoading) {
+  if (isLoading || !socket) {
     return (
       <div className="room-page">
-        <LoadingSpinner message="Loading room..." />
+        <LoadingSpinner message={!socket ? "Connecting..." : "Loading room..."} />
       </div>
     );
   }

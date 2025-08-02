@@ -6,9 +6,16 @@ class SocketService {
   private socket: Socket<SocketEventMap, SocketEventMap> | null = null;
 
   connect(): Socket<SocketEventMap, SocketEventMap> {
-    if (!this.socket || !this.socket.connected) {
-      this.socket = io(SOCKET_URL);
+    if (this.socket && this.socket.connected) {
+      return this.socket;
     }
+    
+    if (this.socket && !this.socket.connected) {
+      this.socket.connect();
+      return this.socket;
+    }
+    
+    this.socket = io(SOCKET_URL);
     return this.socket;
   }
 
