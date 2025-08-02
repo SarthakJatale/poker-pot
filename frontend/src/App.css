@@ -16,11 +16,17 @@ body {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
   color: #333;
+  margin: 0;
+  display: block;
+  place-items: unset;
 }
 
 .app {
   min-height: 100vh;
   padding: 20px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Error Banner */
@@ -54,6 +60,8 @@ body {
   align-items: center;
   min-height: 100vh;
   padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .card {
@@ -63,6 +71,8 @@ body {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   max-width: 500px;
   width: 100%;
+  margin: 0 auto;
+  flex-shrink: 0;
 }
 
 .card h1 {
@@ -108,7 +118,7 @@ body {
 /* Avatar Grid */
 .avatar-grid {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: repeat(7, 1fr);
   gap: 8px;
   margin-top: 8px;
 }
@@ -179,6 +189,24 @@ button:disabled {
   cursor: not-allowed;
 }
 
+button.danger {
+  background: #e74c3c;
+  color: white;
+}
+button.danger:hover:not(:disabled) {
+  background: #c0392b;
+  transform: translateY(-2px);
+}
+
+button.warning {
+  background: #f39c12;
+  color: white;
+}
+button.warning:hover:not(:disabled) {
+  background: #e67e22;
+  transform: translateY(-2px);
+}
+
 /* Features List */
 .features {
   margin-top: 30px;
@@ -227,9 +255,32 @@ button:disabled {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
-.room-info h1 {
+.room-info h2 {
   color: #2c3e50;
   margin-bottom: 4px;
+}
+
+.room-id-tip {
+  margin-bottom: 8px;
+}
+
+.copy-tip {
+  color: #667eea;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #f8f9ff;
+  border: 1px solid #e1e8ff;
+  display: inline-block;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.copy-tip:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-1px);
 }
 
 .room-info p {
@@ -286,7 +337,7 @@ button:disabled {
 /* Players Grid */
 .players-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
   margin-bottom: 30px;
 }
