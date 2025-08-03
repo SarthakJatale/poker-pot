@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { useToastActions } from '../../../shared/hooks';
+import '../../../shared/components/styles.css';
 import type { Room } from '../../../shared/types/room.types';
 
 interface RoomHeaderProps {
   room: Room;
   onLeaveRoom: () => void;
+  onShowHelp?: () => void;
 }
 
-const RoomHeader: React.FC<RoomHeaderProps> = ({ room, onLeaveRoom }) => {
+const RoomHeader: React.FC<RoomHeaderProps> = ({ room, onLeaveRoom, onShowHelp }) => {
   const [copySuccess, setCopySuccess] = useState(false);
   const { showSuccess, showError } = useToastActions();
 
@@ -52,6 +54,11 @@ const RoomHeader: React.FC<RoomHeaderProps> = ({ room, onLeaveRoom }) => {
         <p>Host: {room.players.find(p => p.id === room.hostId)?.username}</p>
       </div>
       <div className="room-actions">
+        {onShowHelp && (
+          <button onClick={onShowHelp} className="help-btn" title="Show Help & Rules">
+            ❓ Help
+          </button>
+        )}
         <button onClick={onLeaveRoom} className="danger">
           Leave Room
         </button>

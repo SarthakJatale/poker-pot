@@ -1,6 +1,7 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useState } from 'react';
 import { Socket } from 'socket.io-client';
-import { LoadingSpinner } from '../../shared/components';
+import { LoadingSpinner, Modal } from '../../shared/components';
+import { HelpModalContent } from '../help';
 import type { SocketEventMap } from '../../shared/types';
 import type { Room } from '../../shared/types/room.types';
 import type { Player } from '../../shared/types/player.types';
@@ -28,6 +29,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
   gameState, 
   onLeaveRoom 
 }) => {
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const isHost = currentPlayer.id === room.hostId;
   const actualGameState = gameState || room.gameState;
   const connectedPlayers = room.players.filter(p => p.isConnected);
@@ -38,7 +40,8 @@ const GameRoom: React.FC<GameRoomProps> = ({
       <Suspense fallback={<LoadingSpinner message="Loading room..." />}>
         <RoomHeader 
           room={room} 
-          onLeaveRoom={onLeaveRoom} 
+          onLeaveRoom={onLeaveRoom}
+          onShowHelp={() => setIsHelpModalOpen(true)} 
         />
         
         <GameStatus 
@@ -83,6 +86,16 @@ const GameRoom: React.FC<GameRoomProps> = ({
           )}
         </div>
       </Suspense>
+      
+      {/* Help Modal */}
+      <Modal
+        isOpen={isHelpModalOpen}
+        onClose={() => setIsHelpModalOpen(false)}
+        title="🃏 Poker Help & Rules"
+        size="fullscreen"
+      >
+        <HelpModalContent />
+      </Modal>
     </div>
   );
 };
