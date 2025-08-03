@@ -174,10 +174,30 @@ A real-time multiplayer poker pot calculator built with TypeScript, React, and N
 │   └── package.json
 ├── backend/
 │   ├── src/
+│   │   ├── config/
+│   │   │   └── index.ts
+│   │   ├── controllers/
+│   │   │   ├── index.ts
+│   │   │   └── socketController.ts
+│   │   ├── middleware/
+│   │   │   ├── errorHandler.ts
+│   │   │   └── index.ts
+│   │   ├── models/
+│   │   │   └── index.ts
+│   │   ├── routes/
+│   │   │   ├── api.ts
+│   │   │   └── index.ts
+│   │   ├── services/
+│   │   │   ├── gameService.ts
+│   │   │   ├── index.ts
+│   │   │   └── roomService.ts
+│   │   ├── utils/
+│   │   │   ├── index.ts
+│   │   │   └── ToastResponseHandler.ts
+│   │   ├── validators/
+│   │   │   └── index.ts
 │   │   ├── types.ts
-│   │   ├── gameLogic.ts
-│   │   ├── roomManager.ts
-│   │   └── index.ts
+│   │   └── server.ts
 │   └── package.json
 └── README.md
 ```

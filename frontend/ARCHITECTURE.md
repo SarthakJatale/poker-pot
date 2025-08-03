@@ -118,8 +118,8 @@ Manages WebSocket connection with automatic cleanup:
 const { socket, isConnected, connect, disconnect } = useSocket();
 ```
 
-### `useAppState`
-Centralized application state management:
+### `useAppStore` (Zustand)
+Centralized application state management with Zustand:
 ```typescript
 const {
   room,
@@ -130,7 +130,7 @@ const {
   setError,
   clearError,
   reset
-} = useAppState();
+} = useAppStore();
 ```
 
 ## 🎨 Shared Components

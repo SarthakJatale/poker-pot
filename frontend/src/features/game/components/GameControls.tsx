@@ -22,10 +22,12 @@ const GameControls: React.FC<GameControlsProps> = ({
   const [raiseAmount, setRaiseAmount] = useState(1);
   const { showError } = useToastActions();
   
-  const connectedPlayers = room.players.filter((p: Player) => p.isConnected && !p.hasFolded);
-  const currentTurnPlayer = connectedPlayers[gameState.currentTurn];
+  // Match backend logic: first filter connected players, then get active players for turn logic
+  const connectedPlayers = room.players.filter((p: Player) => p.isConnected);
+  const activePlayers = connectedPlayers.filter((p: Player) => !p.hasFolded);
+  const currentTurnPlayer = activePlayers[gameState.currentTurn];
   const isMyTurn = currentTurnPlayer?.id === currentPlayer.id;
-  const maxBet = Math.max(...connectedPlayers.map((p: Player) => p.currentBet));
+  const maxBet = Math.max(...activePlayers.map((p: Player) => p.currentBet));
   const needToCall = maxBet > currentPlayer.currentBet;
   const callAmount = maxBet - currentPlayer.currentBet;
 
@@ -74,11 +76,12 @@ const GameControls: React.FC<GameControlsProps> = ({
     });
   };
 
+  // Action validation logic - match backend calculations
   const canCheck = !needToCall;
-  const canRaise = currentPlayer.balance >= (raiseAmount * room.settings.initialBetAmount);
-  const canCall = currentPlayer.balance >= callAmount;
-  const canPlaySeen = !currentPlayer.hasSeenCards && currentPlayer.balance >= (gameState.minBetAmount * 2);
-  const canPlayBlind = !currentPlayer.hasSeenCards && currentPlayer.balance >= gameState.minBetAmount;
+  const canRaise = currentPlayer.balance >= (callAmount + (raiseAmount * room.settings.initialBetAmount));
+  const canCall = callAmount > 0 && currentPlayer.balance >= callAmount; // Only show call if there's something to call
+  const canPlaySeen = !currentPlayer.hasSeenCards && currentPlayer.balance >= (callAmount + (gameState.minBetAmount * 2));
+  const canPlayBlind = !currentPlayer.hasSeenCards && currentPlayer.balance >= (callAmount + gameState.minBetAmount);
 
   return (
     <div className="game-controls">
@@ -115,7 +118,7 @@ const GameControls: React.FC<GameControlsProps> = ({
             onClick={() => handleAction('blind')}
             className="action-btn blind"
           >
-            Play Blind ${gameState.minBetAmount}
+            Play Blind ${callAmount + gameState.minBetAmount}
           </button>
         )}
 
@@ -124,7 +127,7 @@ const GameControls: React.FC<GameControlsProps> = ({
             onClick={() => handleAction('seen')}
             className="action-btn seen"
           >
-            Play Seen ${gameState.minBetAmount * 2}
+            Play Seen ${callAmount + (gameState.minBetAmount * 2)}
           </button>
         )}
 
@@ -134,7 +137,7 @@ const GameControls: React.FC<GameControlsProps> = ({
             <input
               type="number"
               min="1"
-              max={Math.floor(currentPlayer.balance / room.settings.initialBetAmount)}
+              max={Math.floor((currentPlayer.balance - callAmount) / room.settings.initialBetAmount)}
               value={raiseAmount}
               onChange={(e) => setRaiseAmount(parseInt(e.target.value) || 1)}
             />
@@ -144,7 +147,7 @@ const GameControls: React.FC<GameControlsProps> = ({
             disabled={!canRaise}
             className="action-btn raise"
           >
-            Raise ${raiseAmount * room.settings.initialBetAmount}
+            Raise ${callAmount + (raiseAmount * room.settings.initialBetAmount)}
           </button>
         </div>
       </div>

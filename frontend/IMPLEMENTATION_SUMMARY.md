@@ -58,7 +58,7 @@ const GameRoom = React.lazy(() => import('./features/game/GameRoom'));
 
 ### Custom Hooks:
 - `useSocket()` - WebSocket management
-- `useAppState()` - Centralized state
+- `useAppStore()` - Centralized state with Zustand
 
 ### Shared Components:
 - `ErrorBoundary` - Production error handling
@@ -68,6 +68,7 @@ const GameRoom = React.lazy(() => import('./features/game/GameRoom'));
 
 - `react-router-dom` - Client-side routing
 - `react-error-boundary` - Error handling
+- `zustand` - State management
 - `@types/node` - Node.js types for Vite config
 
 ## 🔧 Development Workflow
