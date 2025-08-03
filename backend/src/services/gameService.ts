@@ -104,8 +104,8 @@ export class GameService {
       this.postBlind(players[bigBlindIndex], bigBlindAmount, room, 'big');
     }
 
-    // Set minimum bet to big blind amount
-    room.gameState.minBetAmount = bigBlindAmount;
+    // Set minimum bet to small blind amount
+    room.gameState.minBetAmount = smallBlindAmount;
   }
 
   /**
@@ -198,10 +198,12 @@ export class GameService {
         return this.endRound(room, remainingPlayers[0].id);
       }
 
-      // Move to next player or advance betting round
-      const nextTurnResult = this.advanceTurn(room, players);
-      if (nextTurnResult.roundComplete) {
-        return this.advanceToNextPhase(room);
+      // Move to next player or advance betting round if action is 'seen'
+      if (action.action !== 'seen') {
+        const nextTurnResult = this.advanceTurn(room, players);
+        if (nextTurnResult.roundComplete) {
+          return this.advanceToNextPhase(room);
+        }
       }
 
       return { gameState: room.gameState };
@@ -241,6 +243,9 @@ export class GameService {
       case 'call':
         if (callAmount <= 0) {
           return { error: 'Nothing to call' };
+        }
+        if (!player.hasSeenCards) {
+          return { error: 'Must see cards before calling' };
         }
         if (player.balance < callAmount) {
           // All-in for less than call amount
@@ -283,18 +288,9 @@ export class GameService {
         if (player.hasSeenCards) {
           return { error: 'Already seen cards' };
         }
-        
-        const seenAmount = callAmount + (room.gameState.minBetAmount * 2);
-        if (player.balance < seenAmount) {
-          return { error: 'Insufficient balance to see cards' };
-        }
-        
+                
         player.hasSeenCards = true;
-        player.currentBet += seenAmount;
-        player.balance -= seenAmount;
-        room.gameState.pot += seenAmount;
-        
-        Logger.debug(`Player seen cards`, { playerId: action.playerId, amount: seenAmount });
+        Logger.debug(`Player seen cards`, { playerId: action.playerId });
         return {};
 
       case 'blind':
@@ -302,7 +298,7 @@ export class GameService {
           return { error: 'Cannot play blind after seeing cards' };
         }
         
-        const blindAmount = callAmount + room.gameState.minBetAmount;
+        const blindAmount = (maxBet / 2) - player.currentBet;
         if (player.balance < blindAmount) {
           return { error: 'Insufficient balance to play blind' };
         }

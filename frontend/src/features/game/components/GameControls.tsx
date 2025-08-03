@@ -5,6 +5,7 @@ import type { Player } from '../../../shared/types/player.types';
 import type { GameState } from '../../../shared/types/game.types';
 import type { Room } from '../../../shared/types/room.types';
 import type { SocketEventMap } from '../../../shared/types';
+import { formatCurrency } from '../../../shared';
 
 interface GameControlsProps {
   socket: Socket<SocketEventMap, SocketEventMap> | null;
@@ -79,8 +80,7 @@ const GameControls: React.FC<GameControlsProps> = ({
   // Action validation logic - match backend calculations
   const canCheck = !needToCall;
   const canRaise = currentPlayer.balance >= (callAmount + (raiseAmount * room.settings.initialBetAmount));
-  const canCall = callAmount > 0 && currentPlayer.balance >= callAmount; // Only show call if there's something to call
-  const canPlaySeen = !currentPlayer.hasSeenCards && currentPlayer.balance >= (callAmount + (gameState.minBetAmount * 2));
+  const canCall = callAmount > 0 && currentPlayer.balance >= callAmount && currentPlayer.hasSeenCards; // Only show call if there's something to call
   const canPlayBlind = !currentPlayer.hasSeenCards && currentPlayer.balance >= (callAmount + gameState.minBetAmount);
 
   return (
@@ -100,7 +100,7 @@ const GameControls: React.FC<GameControlsProps> = ({
             onClick={() => handleAction('call')}
             className="action-btn call"
           >
-            Call ${callAmount}
+            Call {formatCurrency(callAmount)}
           </button>
         )}
 
@@ -118,16 +118,16 @@ const GameControls: React.FC<GameControlsProps> = ({
             onClick={() => handleAction('blind')}
             className="action-btn blind"
           >
-            Play Blind ${callAmount + gameState.minBetAmount}
+            Play Blind {formatCurrency(callAmount / 2)}
           </button>
         )}
 
-        {canPlaySeen && (
+        {!currentPlayer.hasSeenCards && (
           <button 
             onClick={() => handleAction('seen')}
             className="action-btn seen"
           >
-            Play Seen ${callAmount + (gameState.minBetAmount * 2)}
+            See cards
           </button>
         )}
 

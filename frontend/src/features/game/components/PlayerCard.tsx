@@ -2,6 +2,7 @@ import React from 'react';
 import { Socket } from 'socket.io-client';
 import type { Player } from '../../../shared/types/player.types';
 import type { SocketEventMap } from '../../../shared/types';
+import { formatCurrency } from '../../../shared';
 
 interface PlayerCardProps {
   player: Player;
@@ -30,11 +31,11 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       <div className="player-stats">
         <div className="stat">
           <span className="label">Balance:</span>
-          <span className="value">${player.balance}</span>
+          <span className="value">{formatCurrency(player.balance)}</span>
         </div>
         <div className="stat">
           <span className="label">Current Bet:</span>
-          <span className="value">${player.currentBet}</span>
+          <span className="value">{formatCurrency(player.currentBet)}</span>
         </div>
       </div>
 

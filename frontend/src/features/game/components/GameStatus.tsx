@@ -1,5 +1,6 @@
 import React from 'react';
 import type { GameState } from '../../../shared/types/game.types';
+import { formatCurrency } from '../../../shared';
 
 interface GameStatusProps {
   gameState: GameState;
@@ -18,11 +19,11 @@ const GameStatus: React.FC<GameStatusProps> = ({ gameState }) => {
       </div>
       <div className="status-item">
         <span className="label">Pot:</span>
-        <span className="value">${gameState.pot}</span>
+        <span className="value">{formatCurrency(gameState.pot)}</span>
       </div>
       <div className="status-item">
         <span className="label">Min Bet:</span>
-        <span className="value">${gameState.minBetAmount}</span>
+        <span className="value">{formatCurrency(gameState.minBetAmount)}</span>
       </div>
       {gameState.cardsOnTable > 0 && (
         <div className="status-item">
