@@ -198,6 +198,17 @@ button.danger:hover:not(:disabled) {
   transform: translateY(-2px);
 }
 
+button.help-button {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  font-size: 1rem;
+}
+
+button.help-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+}
+
 button.warning {
   background: #f39c12;
   color: white;
@@ -240,6 +251,9 @@ button.warning:hover:not(:disabled) {
 
 /* Game Room */
 .game-room {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -601,6 +615,7 @@ button.warning:hover:not(:disabled) {
   background: white;
   border-radius: 12px;
   padding: 24px;
+  margin-top: 24px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
@@ -703,6 +718,11 @@ button.warning:hover:not(:disabled) {
 @media (max-width: 768px) {
   .app {
     padding: 10px;
+  }
+
+  .game-room {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
   
   .game-status {

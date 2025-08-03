@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAppNavigation } from '../../../shared/hooks';
 
 interface WelcomeScreenProps {
   onCreateRoom: () => void;
@@ -6,6 +7,12 @@ interface WelcomeScreenProps {
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onCreateRoom, onJoinRoom }) => {
+  const { navigate } = useAppNavigation();
+
+  const handleHelpClick = () => {
+    navigate('/help');
+  };
+
   return (
     <div className="card">
       <h1>Poker Pot Calculator</h1>
@@ -17,6 +24,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onCreateRoom, onJoinRoom 
         </button>
         <button onClick={onJoinRoom} className="secondary">
           Join Room
+        </button>
+        <button onClick={handleHelpClick} className="help-button">
+          📖 Help & Rules
         </button>
       </div>
       

@@ -56,7 +56,7 @@ const GameRoom: React.FC<GameRoomProps> = ({
             )}
           </div>
         )}
-        
+
         <PlayersGrid 
           players={connectedPlayers}
           currentPlayer={currentPlayer}
@@ -64,23 +64,24 @@ const GameRoom: React.FC<GameRoomProps> = ({
           isHost={isHost}
           socket={socket}
         />
-        
-        <GameArea 
-          socket={socket}
-          room={room}
-          currentPlayer={currentPlayer}
-          gameState={actualGameState}
-          connectedPlayers={connectedPlayers}
-          isHost={isHost}
-        />
-        
-        {isHost && (
-          <HostControls
+        <div className="">
+          <GameArea 
             socket={socket}
             room={room}
+            currentPlayer={currentPlayer}
             gameState={actualGameState}
+            connectedPlayers={connectedPlayers}
+            isHost={isHost}
           />
-        )}
+          
+          {isHost && (
+            <HostControls
+              socket={socket}
+              room={room}
+              gameState={actualGameState}
+            />
+          )}
+        </div>
       </Suspense>
     </div>
   );

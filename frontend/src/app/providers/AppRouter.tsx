@@ -8,6 +8,7 @@ const HomePage = React.lazy(() => import('../../features/home/pages/HomePage'));
 const CreateRoomPage = React.lazy(() => import('../../features/home/pages/CreateRoomPage'));
 const JoinRoomPage = React.lazy(() => import('../../features/home/pages/JoinRoomPage'));
 const RoomPage = React.lazy(() => import('../../features/game/pages/RoomPage'));
+const HelpPage = React.lazy(() => import('../../features/help/pages/HelpPage'));
 
 export const AppRouter: React.FC = () => {
   return (
@@ -19,6 +20,7 @@ export const AppRouter: React.FC = () => {
             <Route path={ROUTES.CREATE_ROOM} element={<CreateRoomPage />} />
             <Route path={ROUTES.JOIN_ROOM} element={<JoinRoomPage />} />
             <Route path={ROUTES.ROOM} element={<RoomPage />} />
+            <Route path={ROUTES.HELP} element={<HelpPage />} />
             <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
           </Routes>
         </Suspense>
