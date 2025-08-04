@@ -22,15 +22,17 @@ const GameStatus: React.FC<GameStatusProps> = ({ gameState }) => {
         <span className="value">{formatCurrency(gameState.pot)}</span>
       </div>
       <div className="status-item">
-        <span className="label">Min Bet:</span>
-        <span className="value">{formatCurrency(gameState.minBetAmount)}</span>
+        <span className="label">Min Call:</span>
+        <span className="value">{formatCurrency(gameState.currentCallAmount)}</span>
       </div>
-      {gameState.cardsOnTable > 0 && (
-        <div className="status-item">
-          <span className="label">Cards on Table:</span>
-          <span className="value">{gameState.cardsOnTable}</span>
-        </div>
-      )}
+      <div className="status-item">
+        <span className="label">Min Blind:</span>
+        <span className="value">{formatCurrency(gameState.curretBlindAmount)}</span>
+      </div>
+      <div className="status-item">
+        <span className="label">Cards on Table:</span>
+        <span className="value">{gameState.cardsOnTable}</span>
+      </div>
     </div>
   );
 };

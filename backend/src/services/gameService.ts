@@ -9,7 +9,8 @@ export class GameService {
       currentRound: 1,
       currentTurn: 0,
       pot: 0,
-      minBetAmount: initialBetAmount,
+      curretBlindAmount: initialBetAmount,
+      currentCallAmount: initialBetAmount * 2, // Big blind amount
       dealerIndex: 0,
       cardsOnTable: 0,
       roundPhase: 'preflop',
@@ -104,8 +105,8 @@ export class GameService {
       this.postBlind(players[bigBlindIndex], bigBlindAmount, room, 'big');
     }
 
-    // Set minimum bet to small blind amount
-    room.gameState.minBetAmount = smallBlindAmount;
+    room.gameState.curretBlindAmount = smallBlindAmount;
+    room.gameState.currentCallAmount = bigBlindAmount;
   }
 
   /**
@@ -184,7 +185,7 @@ export class GameService {
       }
 
       // Process the action
-      const actionResult = this.executePlayerAction(room, currentPlayer, action, activePlayers);
+      const actionResult = this.executePlayerAction(room, currentPlayer, action);
       if (actionResult.error) {
         return { gameState: room.gameState, error: actionResult.error };
       }
@@ -220,11 +221,10 @@ export class GameService {
     room: Room, 
     player: Player, 
     action: PlayerAction, 
-    activePlayers: Player[]
   ): { error?: string } {
-    const currentBets = activePlayers.map(p => p.currentBet);
-    const maxBet = Math.max(...currentBets);
-    const callAmount = maxBet - player.currentBet;
+    const callAmount = room.gameState.currentCallAmount;
+    const blindAmount = room.gameState.curretBlindAmount;
+    
 
     switch (action.action) {
       case 'fold':
@@ -233,21 +233,23 @@ export class GameService {
         return {};
 
       case 'check':
+        const canCheck = player.hasSeenCards ? player.currentBet === callAmount : player.currentBet === blindAmount;
         // Can only check if no bet to call
-        if (callAmount > 0) {
+        if (!canCheck) {
           return { error: 'Cannot check - there is a bet to call' };
         }
         Logger.debug(`Player checked`, { playerId: action.playerId });
         return {};
 
       case 'call':
-        if (callAmount <= 0) {
+        const callBetAmount = action.amount || callAmount;
+        if (callBetAmount <= 0) {
           return { error: 'Nothing to call' };
         }
         if (!player.hasSeenCards) {
           return { error: 'Must see cards before calling' };
         }
-        if (player.balance < callAmount) {
+        if (player.balance < callBetAmount) {
           // All-in for less than call amount
           const allInAmount = player.balance;
           player.currentBet += allInAmount;
@@ -255,10 +257,10 @@ export class GameService {
           player.balance = 0;
           Logger.debug(`Player called all-in`, { playerId: action.playerId, amount: allInAmount });
         } else {
-          player.currentBet += callAmount;
-          player.balance -= callAmount;
-          room.gameState.pot += callAmount;
-          Logger.debug(`Player called`, { playerId: action.playerId, amount: callAmount });
+          player.currentBet += callBetAmount;
+          player.balance -= callBetAmount;
+          room.gameState.pot += callBetAmount;
+          Logger.debug(`Player called`, { playerId: action.playerId, amount: callBetAmount });
         }
         return {};
 
@@ -267,8 +269,8 @@ export class GameService {
           return { error: 'Invalid raise amount' };
         }
         
-        const raiseAmount = action.amount * room.settings.initialBetAmount;
-        const totalRaiseAmount = callAmount + raiseAmount;
+        const raiseAmount = action.amount;
+        const totalRaiseAmount = player.hasSeenCards ? callAmount + raiseAmount : blindAmount + raiseAmount;
         
         if (player.balance < totalRaiseAmount) {
           return { error: 'Insufficient balance for raise' };
@@ -278,8 +280,13 @@ export class GameService {
         player.balance -= totalRaiseAmount;
         room.gameState.pot += totalRaiseAmount;
         
-        // Update minimum bet for subsequent raises
-        room.gameState.minBetAmount = Math.max(room.gameState.minBetAmount, raiseAmount);
+        if (player.hasSeenCards) {
+          room.gameState.currentCallAmount = totalRaiseAmount;
+          room.gameState.curretBlindAmount = totalRaiseAmount / 2;
+        } else {
+          room.gameState.currentCallAmount = totalRaiseAmount * 2;
+          room.gameState.curretBlindAmount = totalRaiseAmount;
+        }
         
         Logger.debug(`Player raised`, { playerId: action.playerId, amount: totalRaiseAmount });
         return {};
@@ -294,20 +301,20 @@ export class GameService {
         return {};
 
       case 'blind':
+        const blindBetAmount = action.amount || blindAmount;
         if (player.hasSeenCards) {
           return { error: 'Cannot play blind after seeing cards' };
         }
-        
-        const blindAmount = (maxBet / 2) - player.currentBet;
-        if (player.balance < blindAmount) {
+
+        if (player.balance < blindBetAmount) {
           return { error: 'Insufficient balance to play blind' };
         }
         
-        player.currentBet += blindAmount;
-        player.balance -= blindAmount;
-        room.gameState.pot += blindAmount;
+        player.currentBet += blindBetAmount;
+        player.balance -= blindBetAmount;
+        room.gameState.pot += blindBetAmount;
         
-        Logger.debug(`Player played blind`, { playerId: action.playerId, amount: blindAmount });
+        Logger.debug(`Player played blind`, { playerId: action.playerId, amount: blindBetAmount });
         return {};
 
       default:
@@ -326,24 +333,11 @@ export class GameService {
     }
 
     // Check if betting round is complete
-    const currentBets = activePlayers.map(p => p.currentBet);
-    const maxBet = Math.max(...currentBets);
-    const allBetsEqual = currentBets.every(bet => bet === maxBet || activePlayers.find(p => p.currentBet === bet)?.balance === 0);
+    const allBetsEqual = this.allPlayersHaveActed(room, activePlayers)
     
-    // For preflop, ensure all players have had a chance to act after the blinds
-    if (room.gameState.roundPhase === 'preflop') {
-      const bigBlindIndex = this.getBigBlindIndex(allPlayers.length, room.gameState.dealerIndex);
-      const currentTurnPlayer = activePlayers[room.gameState.currentTurn];
-      
-      // Round complete if we're back to the big blind and all bets are equal
-      if (allBetsEqual && this.hasCompletedBettingCircle(room, activePlayers, bigBlindIndex)) {
-        return { roundComplete: true };
-      }
-    } else {
-      // Post-flop rounds: complete when all players have acted and bets are equal
-      if (allBetsEqual && this.allPlayersHaveActed(room, activePlayers)) {
-        return { roundComplete: true };
-      }
+    // Complete round when all players have acted and bets are equal
+    if (allBetsEqual) {
+      return { roundComplete: true };
     }
     
     // Move to next active player
@@ -402,13 +396,14 @@ export class GameService {
    * Check if all active players have had a chance to act this round
    */
   private static allPlayersHaveActed(room: Room, activePlayers: Player[]): boolean {
-    // For post-flop rounds, check if we've completed a betting circle
-    if (room.gameState.roundPhase !== 'preflop') {
-      const currentBets = activePlayers.map(p => p.currentBet);
-      const maxBet = Math.max(...currentBets);
-      return currentBets.every(bet => bet === maxBet || activePlayers.find(p => p.currentBet === bet)?.balance === 0);
+    if (room.gameState.currentCallAmount === 0 && room.gameState.curretBlindAmount === 0) {
+      // No bets made yet, check if current player is the dealer
+      const dealerIndex = room.gameState.dealerIndex;
+      const currentTurn = room.gameState.currentTurn;
+      return dealerIndex === currentTurn;
     }
-    return true;
+    
+    return activePlayers.every(p => (p.hasSeenCards ? (p.currentBet === room.gameState.currentCallAmount) : (p.currentBet === room.gameState.curretBlindAmount)) || p.balance === 0); 
   }
 
   /**
@@ -455,6 +450,10 @@ export class GameService {
         default:
           return { gameState: room.gameState, error: 'Invalid game phase' };
       }
+      
+      // Reset minimum bet for next round
+      room.gameState.currentCallAmount = 0;
+      room.gameState.curretBlindAmount = 0;
 
       // Set first to act for post-flop betting (left of dealer, as per Texas Hold'em rules)
       const activePlayers = players.filter(p => !p.hasFolded && p.isConnected);
@@ -572,7 +571,8 @@ export class GameService {
       room.gameState.roundPhase = 'preflop';
       room.gameState.cardsOnTable = 0;
       room.gameState.currentTurn = 0;
-      room.gameState.minBetAmount = room.settings.initialBetAmount;
+      room.gameState.curretBlindAmount = room.settings.initialBetAmount;
+      room.gameState.currentCallAmount = room.settings.initialBetAmount * 2; // Big blind amount
       room.gameState.lastAction = undefined;
       
       // Reset all players for next hand
@@ -642,7 +642,8 @@ export class GameService {
       
       if (newSettings.initialBetAmount !== undefined) {
         room.settings.initialBetAmount = Math.max(1, newSettings.initialBetAmount);
-        room.gameState.minBetAmount = room.settings.initialBetAmount;
+        room.gameState.curretBlindAmount = room.settings.initialBetAmount;
+        room.gameState.currentCallAmount = room.settings.initialBetAmount * 2; // Big blind amount
       }
       
       if (newSettings.maxPlayers !== undefined) {

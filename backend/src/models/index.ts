@@ -28,7 +28,8 @@ export interface GameState {
   currentRound: number;
   currentTurn: number;
   pot: number;
-  minBetAmount: number;
+  currentCallAmount: number;
+  curretBlindAmount: number;
   dealerIndex: number;
   cardsOnTable: number; // 0, 3, 4, or 5 cards revealed
   roundPhase: 'preflop' | 'flop' | 'turn' | 'river' | 'showdown';

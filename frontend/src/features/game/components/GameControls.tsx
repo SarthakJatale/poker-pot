@@ -20,17 +20,15 @@ const GameControls: React.FC<GameControlsProps> = ({
   gameState, 
   room 
 }) => {
-  const [raiseAmount, setRaiseAmount] = useState(1);
+  const [raiseAmount, setRaiseAmount] = useState(room.settings.initialBetAmount);
   const { showError } = useToastActions();
   
-  // Match backend logic: first filter connected players, then get active players for turn logic
-  const connectedPlayers = room.players.filter((p: Player) => p.isConnected);
-  const activePlayers = connectedPlayers.filter((p: Player) => !p.hasFolded);
+  const activePlayers = room.players.filter((p: Player) => p.isConnected && !p.hasFolded);
   const currentTurnPlayer = activePlayers[gameState.currentTurn];
   const isMyTurn = currentTurnPlayer?.id === currentPlayer.id;
-  const maxBet = Math.max(...activePlayers.map((p: Player) => p.currentBet));
-  const needToCall = maxBet > currentPlayer.currentBet;
-  const callAmount = maxBet - currentPlayer.currentBet;
+  const callAmount = gameState.currentCallAmount;
+  const blindAmount = gameState.curretBlindAmount;
+  const needToBet = currentPlayer.hasSeenCards ? callAmount > currentPlayer.currentBet : blindAmount > currentPlayer.currentBet;
 
   if (!isMyTurn) {
     return (
@@ -46,6 +44,18 @@ const GameControls: React.FC<GameControlsProps> = ({
         <p>You have folded this round.</p>
       </div>
     );
+  }
+
+  const handleRaiseIncrement = () => {
+    if (raiseAmount <= currentPlayer.balance) {
+      setRaiseAmount(prev => prev + room.settings.initialBetAmount);
+    }
+  };
+
+  const handleRaiseDecrement = () => {
+    if (raiseAmount > room.settings.initialBetAmount) {
+      setRaiseAmount(prev => prev - room.settings.initialBetAmount);
+    }
   }
 
   const handleAction = (action: string, amount?: number) => {
@@ -78,10 +88,10 @@ const GameControls: React.FC<GameControlsProps> = ({
   };
 
   // Action validation logic - match backend calculations
-  const canCheck = !needToCall;
+  const canCheck = !needToBet;
   const canRaise = currentPlayer.balance >= (callAmount + (raiseAmount * room.settings.initialBetAmount));
   const canCall = callAmount > 0 && currentPlayer.balance >= callAmount && currentPlayer.hasSeenCards; // Only show call if there's something to call
-  const canPlayBlind = !currentPlayer.hasSeenCards && currentPlayer.balance >= (callAmount + gameState.minBetAmount);
+  const canPlayBlind = !currentPlayer.hasSeenCards && blindAmount > 0 && currentPlayer.balance >= blindAmount;
 
   return (
     <div className="game-controls">
@@ -95,12 +105,12 @@ const GameControls: React.FC<GameControlsProps> = ({
           Fold
         </button>
 
-        {needToCall && canCall && (
+        {needToBet && canCall && (
           <button 
-            onClick={() => handleAction('call')}
+            onClick={() => handleAction('call', callAmount - currentPlayer.currentBet)}
             className="action-btn call"
           >
-            Call {formatCurrency(callAmount)}
+            Call {formatCurrency(callAmount - currentPlayer.currentBet)}
           </button>
         )}
 
@@ -115,10 +125,10 @@ const GameControls: React.FC<GameControlsProps> = ({
 
         {canPlayBlind && (
           <button 
-            onClick={() => handleAction('blind')}
+            onClick={() => handleAction('blind', blindAmount - currentPlayer.currentBet)}
             className="action-btn blind"
           >
-            Play Blind {formatCurrency(callAmount / 2)}
+            Play Blind {formatCurrency(blindAmount - currentPlayer.currentBet) }
           </button>
         )}
 
@@ -130,31 +140,32 @@ const GameControls: React.FC<GameControlsProps> = ({
             See cards
           </button>
         )}
-
-        <div className="raise-section">
-          <div className="raise-input">
-            <label>Raise (multiples of ${room.settings.initialBetAmount}):</label>
-            <input
-              type="number"
-              min="1"
-              max={Math.floor((currentPlayer.balance - callAmount) / room.settings.initialBetAmount)}
-              value={raiseAmount}
-              onChange={(e) => setRaiseAmount(parseInt(e.target.value) || 1)}
-            />
+      </div>
+        
+      <div className="raise-section">
+        <div className="raise-input">
+          <div role='button' onClick={handleRaiseDecrement} className="adjust-raise">
+            -
           </div>
-          <button 
-            onClick={() => handleAction('raise', raiseAmount)}
-            disabled={!canRaise}
-            className="action-btn raise"
-          >
-            Raise ${callAmount + (raiseAmount * room.settings.initialBetAmount)}
-          </button>
+          <div className="raise-amount">
+            {raiseAmount}
+          </div>
+          <div role='button' onClick={handleRaiseIncrement} className="adjust-raise">
+            +
+          </div>
         </div>
+        <button 
+          onClick={() => handleAction('raise', raiseAmount)}
+          disabled={!canRaise}
+          className="action-btn raise"
+          >
+          Raise by {formatCurrency(raiseAmount)}
+        </button>
       </div>
 
       <div className="player-info">
-        <p>Your Balance: ${currentPlayer.balance}</p>
-        <p>Current Bet: ${currentPlayer.currentBet}</p>
+        <p>Your Balance: {formatCurrency(currentPlayer.balance)}</p>
+        <p>Current Bet: {formatCurrency(currentPlayer.currentBet)}</p>
         <p>Status: {currentPlayer.hasSeenCards ? 'Seen' : 'Blind'}</p>
       </div>
     </div>
