@@ -436,6 +436,11 @@ export class GameService {
         case 'turn':
           room.gameState.roundPhase = 'river';
           room.gameState.cardsOnTable = 5; // 5th and final community card
+
+          players.forEach(player => {
+            player.hasSeenCards = true; // All players will see cards after turn
+          });
+
           Logger.info(`🃏 RIVER - 5th card revealed`, { roomId: room.id });
           break;
           
