@@ -11,4 +11,5 @@ export interface GameState {
   roundPhase: 'preflop' | 'flop' | 'turn' | 'river' | 'showdown';
   isGameInProgress: boolean;
   lastAction?: PlayerAction;
+  awaitingWinnerDeclaration?: boolean;
 }

@@ -426,32 +426,31 @@ export class GameService {
           room.gameState.cardsOnTable = 3; // First 3 community cards
           Logger.info(`🃏 FLOP - 3 cards revealed`, { roomId: room.id });
           break;
-          
         case 'flop':
           room.gameState.roundPhase = 'turn';
           room.gameState.cardsOnTable = 4; // 4th community card
           Logger.info(`🃏 TURN - 4th card revealed`, { roomId: room.id });
           break;
-          
         case 'turn':
           room.gameState.roundPhase = 'river';
           room.gameState.cardsOnTable = 5; // 5th and final community card
-
           players.forEach(player => {
             player.hasSeenCards = true; // All players will see cards after turn
           });
-
           Logger.info(`🃏 RIVER - 5th card revealed`, { roomId: room.id });
           break;
-          
         case 'river':
           room.gameState.roundPhase = 'showdown';
           Logger.info(`🎯 SHOWDOWN - Final betting complete`, { roomId: room.id });
+          // At showdown, require host to declare winner(s) if more than one player remains
+          const activePlayers = players.filter(p => !p.hasFolded && p.isConnected);
+          if (activePlayers.length > 1) {
+            room.gameState.awaitingWinnerDeclaration = true;
+            return { gameState: room.gameState };
+          }
           return this.handleShowdown(room);
-          
         case 'showdown':
           return this.endRound(room);
-          
         default:
           return { gameState: room.gameState, error: 'Invalid game phase' };
       }
@@ -483,7 +482,6 @@ export class GameService {
    */
   private static handleShowdown(room: Room): { gameState: GameState; error?: string } {
     const activePlayers = Array.from(room.players.values()).filter(p => p.isConnected && !p.hasFolded);
-    
     if (activePlayers.length === 1) {
       // Only one player left - they win by default (others folded)
       Logger.info(`🏆 Single player wins by fold`, { 
@@ -493,22 +491,42 @@ export class GameService {
       });
       return this.endRound(room, activePlayers[0].id);
     }
-
     if (activePlayers.length === 0) {
       // Safety check - shouldn't happen
       Logger.warn(`No active players in showdown`, { roomId: room.id });
       return this.endRound(room);
     }
+    // If more than one player remains, do nothing here; host will be prompted via advanceToNextPhase
+    return { gameState: room.gameState };
+  }
 
-    // For this pot calculator implementation, we'll split the pot equally
-    // In a real poker game, you would evaluate hand strength here
-    Logger.info(`🎯 Showdown phase - pot will be split equally`, { 
-      roomId: room.id, 
-      remainingPlayers: activePlayers.length,
-      potAmount: room.gameState.pot
-    });
-    
-    return this.endRound(room);
+  /**
+   * Host declares winner(s) after round ends
+   */
+  static declareWinners(room: Room, winnerIds: string[]): { gameState: GameState; error?: string } {
+    try {
+      if (!room.gameState.awaitingWinnerDeclaration) {
+        return { gameState: room.gameState, error: 'Not awaiting winner declaration' };
+      }
+      const winners = winnerIds
+        .map(id => room.players.get(id))
+        .filter((p): p is Player => !!p);
+      if (winners.length === 0) {
+        return { gameState: room.gameState, error: 'No valid winners selected' };
+      }
+      // Split pot among winners
+      const pot = room.gameState.pot;
+      const share = Math.floor(pot / winners.length);
+      winners.forEach(winner => {
+        winner.balance += share;
+      });
+      // Reset game state for next round
+      room.gameState.awaitingWinnerDeclaration = false;
+      return this.endRound(room, winners[0].id); // Use first winner for round end logic
+    } catch (error) {
+      Logger.error('Failed to declare winners', error);
+      return { gameState: room.gameState, error: 'Failed to declare winners' };
+    }
   }
 
   /**

@@ -88,8 +88,8 @@ const GameControls: React.FC<GameControlsProps> = ({
   };
 
   // Action validation logic - match backend calculations
-  const canCheck = !needToBet;
-  const canRaise = currentPlayer.balance >= (callAmount + (raiseAmount * room.settings.initialBetAmount));
+  const canCheck = !needToBet && room.gameState.roundPhase !== 'showdown';
+  const canRaise = currentPlayer.balance >= (currentPlayer.hasSeenCards ? (callAmount + raiseAmount) : (blindAmount + raiseAmount)) && raiseAmount > 0;
   const canCall = callAmount > 0 && currentPlayer.balance >= callAmount && currentPlayer.hasSeenCards; // Only show call if there's something to call
   const canPlayBlind = !currentPlayer.hasSeenCards && blindAmount > 0 && currentPlayer.balance >= blindAmount;
 
@@ -119,7 +119,7 @@ const GameControls: React.FC<GameControlsProps> = ({
             onClick={() => handleAction('check')}
             className="action-btn check"
           >
-            Check
+            {room.gameState.roundPhase === 'river' ? "Show" : "Check"}
           </button>
         )}
 

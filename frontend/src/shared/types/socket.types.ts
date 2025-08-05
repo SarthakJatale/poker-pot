@@ -11,6 +11,8 @@ export interface SocketEvents {
   'start-game': () => void;
   'update-balance': (data: { playerId: string; newBalance: number }) => void;
   'update-settings': (settings: Partial<RoomSettings>) => void;
+  // Host declares winner(s) after round ends
+  'declare-winner': (winnerIds: string[], callback: (res: any) => void) => void;
 
   // Server to Client
   'room-created': (data: { roomId: string; room: Room }) => void;
