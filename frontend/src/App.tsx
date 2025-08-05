@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { AppRouter } from './app';
+import { AppRouter } from './app/providers';
 import { ErrorBoundary, ToastContainer } from './shared/components';
 import { ToastProvider, useSocket } from './shared/hooks';
 import { useAppStore } from './shared/store/appStore';

@@ -4,10 +4,12 @@ export interface GameState {
   currentRound: number;
   currentTurn: number;
   pot: number;
-  minBetAmount: number;
+  currentCallAmount: number;
+  curretBlindAmount: number;
   dealerIndex: number;
   cardsOnTable: number;
   roundPhase: 'preflop' | 'flop' | 'turn' | 'river' | 'showdown';
   isGameInProgress: boolean;
   lastAction?: PlayerAction;
+  awaitingWinnerDeclaration?: boolean;
 }

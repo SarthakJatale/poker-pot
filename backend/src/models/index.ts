@@ -28,12 +28,14 @@ export interface GameState {
   currentRound: number;
   currentTurn: number;
   pot: number;
-  minBetAmount: number;
+  currentCallAmount: number;
+  curretBlindAmount: number;
   dealerIndex: number;
   cardsOnTable: number; // 0, 3, 4, or 5 cards revealed
   roundPhase: 'preflop' | 'flop' | 'turn' | 'river' | 'showdown';
   isGameInProgress: boolean;
   lastAction?: PlayerAction;
+  awaitingWinnerDeclaration?: boolean;
 }
 
 export interface PlayerAction {
@@ -61,6 +63,8 @@ export interface SocketEvents {
   'start-game': () => void;
   'update-balance': (data: { playerId: string; newBalance: number }) => void;
   'update-settings': (settings: Partial<RoomSettings>) => void;
+  // Host declares winner(s) after round ends
+  'declare-winner': (winnerIds: string[], callback: (res: any) => void) => void;
 
   // Server to Client
   'room-created': (data: { roomId: string; room: SerializedRoom }) => void;

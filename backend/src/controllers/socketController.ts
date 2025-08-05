@@ -30,6 +30,7 @@ export class SocketController {
     this.socket.on('leave-room', this.handleLeaveRoom.bind(this));
     this.socket.on('start-game', this.handleStartGame.bind(this));
     this.socket.on('player-action', this.handlePlayerAction.bind(this));
+    this.socket.on('declare-winner', this.handleDeclareWinners.bind(this));
     this.socket.on('update-balance', this.handleUpdateBalance.bind(this));
     this.socket.on('update-settings', this.handleUpdateSettings.bind(this));
     this.socket.on('disconnect', this.handleDisconnect.bind(this));
@@ -252,6 +253,64 @@ export class SocketController {
         : 'Failed to process action';
       this.socket.emit('error', message);
       this.toastHandler.sendError('Action Failed', message);
+    }
+  }
+
+  private handleDeclareWinners(winnerIds: string[], callback: (res: any) => void): void {
+    try {
+      if (!this.currentRoomId) {
+        this.socket.emit('error', 'Not in a room');
+        this.toastHandler.sendError('Cannot Declare Winners', 'Not in a room');
+        return;
+      }
+
+      const room = RoomService.getRoom(this.currentRoomId);
+      if (!room) {
+        this.socket.emit('error', 'Room not found');
+        this.toastHandler.sendError('Cannot Declare Winners', 'Room not found');
+        return;
+      }
+
+      if (room.hostId !== this.currentPlayerId) {
+        this.socket.emit('error', 'Only the host can declare winners');
+        this.toastHandler.sendError('Cannot Declare Winners', 'Only the host can declare winners');
+        return;
+      }
+
+      const { gameState, error } = GameService.declareWinners(room, winnerIds);
+      
+      if (error) {
+        this.socket.emit('error', error);
+        this.toastHandler.sendError('Failed to Declare Winners', error);
+        return;
+      }
+
+      this.socket.to(this.currentRoomId).emit('game-updated', gameState);
+      this.socket.emit('game-updated', gameState);
+      this.socket.to(this.currentRoomId).emit('room-updated', RoomService.serializeRoom(room));
+      this.socket.emit('room-updated', RoomService.serializeRoom(room));
+      
+      Logger.info(`Winners declared successfully`, { 
+        roomId: this.currentRoomId, 
+        winnerIds 
+      });
+
+      // Send success toast to all players
+      this.toastHandler.sendSuccessToRoom(
+        this.currentRoomId,
+        'Winners Declared!',
+        `The winners are: ${winnerIds.join(', ')}`
+      );
+
+      callback({ success: true });
+    } catch (error) {
+      Logger.error('Failed to declare winners', error);
+      const message = error instanceof ValidationError 
+        ? error.message 
+        : 'Failed to declare winners';
+      this.socket.emit('error', message);
+      this.toastHandler.sendError('Failed to Declare Winners', message);
+      callback({ success: false, error: message });
     }
   }
 

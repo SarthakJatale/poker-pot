@@ -64,7 +64,7 @@ A modern, real-time multiplayer poker pot calculator built with TypeScript, Reac
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/SarthakJatale/poker-pot.git
+   git clone https://github.com/choukseaaryan/poker-pot.git
    cd poker-pot
    ```
 
@@ -473,13 +473,13 @@ If you find this project helpful:
 - 💡 **Suggest features** for future versions
 
 ### 📊 Project Stats
-![GitHub stars](https://img.shields.io/github/stars/SarthakJatale/poker-pot?style=social)
-![GitHub forks](https://img.shields.io/github/forks/SarthakJatale/poker-pot?style=social)
-![GitHub issues](https://img.shields.io/github/issues/SarthakJatale/poker-pot)
-![GitHub license](https://img.shields.io/github/license/SarthakJatale/poker-pot)
+![GitHub stars](https://img.shields.io/github/stars/choukseaaryan/poker-pot?style=social)
+![GitHub forks](https://img.shields.io/github/forks/choukseaaryan/poker-pot?style=social)
+![GitHub issues](https://img.shields.io/github/issues/choukseaaryan/poker-pot)
+![GitHub license](https://img.shields.io/github/license/choukseaaryan/poker-pot)
 
 ---
 
-**Built with ❤️ by Sarthak Jatale**
+**Built with ❤️ by Aaryan Chouksey**
 
-*Happy calculating! 🃏💰*
+*Happy playing! 🃏💰*
