@@ -276,7 +276,7 @@ export class GameService {
           return { error: 'Insufficient balance for raise' };
         }
         
-        player.currentBet += totalRaiseAmount;
+        player.currentBet = totalRaiseAmount;
         player.balance -= totalRaiseAmount;
         room.gameState.pot += totalRaiseAmount;
         
