@@ -480,6 +480,6 @@ If you find this project helpful:
 
 ---
 
-**Built with ❤️ by Sarthak Jatale**
+**Built with ❤️ by Aaryan Chouksey**
 
-*Happy calculating! 🃏💰*
+*Happy playing! 🃏💰*
