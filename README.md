@@ -473,10 +473,10 @@ If you find this project helpful:
 - 💡 **Suggest features** for future versions
 
 ### 📊 Project Stats
-![GitHub stars](https://img.shields.io/github/stars/SarthakJatale/poker-pot?style=social)
-![GitHub forks](https://img.shields.io/github/forks/SarthakJatale/poker-pot?style=social)
-![GitHub issues](https://img.shields.io/github/issues/SarthakJatale/poker-pot)
-![GitHub license](https://img.shields.io/github/license/SarthakJatale/poker-pot)
+![GitHub stars](https://img.shields.io/github/stars/choukseaaryan/poker-pot?style=social)
+![GitHub forks](https://img.shields.io/github/forks/choukseaaryan/poker-pot?style=social)
+![GitHub issues](https://img.shields.io/github/issues/choukseaaryan/poker-pot)
+![GitHub license](https://img.shields.io/github/license/choukseaaryan/poker-pot)
 
 ---
 
