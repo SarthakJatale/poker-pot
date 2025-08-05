@@ -64,7 +64,7 @@ A modern, real-time multiplayer poker pot calculator built with TypeScript, Reac
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/SarthakJatale/poker-pot.git
+   git clone https://github.com/choukseaaryan/poker-pot.git
    cd poker-pot
    ```
 
