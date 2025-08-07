@@ -11,6 +11,9 @@ import type { GameState } from '../../shared/types/game.types';
 const RoomHeader = React.lazy(() => import('./components/RoomHeader'));
 const GameStatus = React.lazy(() => import('./components/GameStatus'));
 const PlayersGrid = React.lazy(() => import('./components/PlayersGrid'));
+const PlayersCarousel = React.lazy(() => import('./components/PlayersCarousel'));
+// Simple mobile detection
+const isMobile = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 const GameArea = React.lazy(() => import('./components/GameArea'));
 const HostControls = React.lazy(() => import('./components/HostControls'));
 
@@ -112,10 +115,6 @@ const GameRoom: React.FC<GameRoomProps> = ({
           onShowHelp={() => setIsHelpModalOpen(true)}
         />
 
-        <GameStatus
-          gameState={actualGameState}
-        />
-
         {actualGameState.isGameInProgress && currentTurnPlayer && (
           <div className="turn-indicator">
             <p>Current Turn: <strong>{currentTurnPlayer.username}</strong></p>
@@ -128,13 +127,32 @@ const GameRoom: React.FC<GameRoomProps> = ({
           </div>
         )}
 
-        <PlayersGrid
-          players={connectedPlayers}
-          currentPlayer={currentPlayer}
-          currentTurnPlayer={currentTurnPlayer}
-          isHost={isHost}
-          socket={socket}
-        />
+
+        {isMobile() ? (
+          <>
+            <PlayersCarousel
+              players={connectedPlayers}
+              currentPlayer={currentPlayer}
+              currentTurnPlayer={currentTurnPlayer}
+            />
+            <GameStatus
+              gameState={actualGameState}
+            />
+          </>
+        ) : (
+          <>
+            <GameStatus
+              gameState={actualGameState}
+            />
+            <PlayersGrid
+              players={connectedPlayers}
+              currentPlayer={currentPlayer}
+              currentTurnPlayer={currentTurnPlayer}
+              isHost={isHost}
+              socket={socket}
+            />
+          </>
+        )}
         <div className="">
           <GameArea
             socket={socket}
