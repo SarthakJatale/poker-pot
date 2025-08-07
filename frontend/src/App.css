@@ -117,8 +117,10 @@ body {
 
 /* Avatar Grid */
 .avatar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: scroll;
+  grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
   gap: 8px;
   margin-top: 8px;
 }
@@ -147,6 +149,7 @@ body {
 /* Buttons */
 .button-group {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   margin-top: 24px;
 }
