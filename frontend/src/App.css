@@ -1,3 +1,47 @@
+/* Players Carousel (Mobile) */
+.players-carousel {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 10px;
+}
+.carousel-track {
+  display: flex;
+  will-change: transform;
+}
+.carousel-card {
+  min-width: 100%;
+  box-sizing: border-box;
+  padding: 0 4px;
+}
+.carousel-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+.carousel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #e1e8ed;
+  display: inline-block;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.carousel-dot.active {
+  background: #667eea;
+}
+@media (min-width: 769px) {
+  .players-carousel {
+    display: none;
+  }
+}
+@media (max-width: 768px) {
+  .players-grid {
+    display: none !important;
+  }
+}
 @import './shared/components/styles.css';
 
 /* Global Styles */
@@ -117,8 +161,10 @@ body {
 
 /* Avatar Grid */
 .avatar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: scroll;
+  grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
   gap: 8px;
   margin-top: 8px;
 }
@@ -147,6 +193,7 @@ body {
 /* Buttons */
 .button-group {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   margin-top: 24px;
 }
@@ -265,7 +312,7 @@ button.warning:hover:not(:disabled) {
   background: white;
   padding: 20px;
   border-radius: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
@@ -298,6 +345,7 @@ button.warning:hover:not(:disabled) {
 }
 
 .room-info p {
+  margin-top: 12px;
   color: #7f8c8d;
 }
 
@@ -308,7 +356,7 @@ button.warning:hover:not(:disabled) {
   background: white;
   padding: 20px;
   border-radius: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   flex-wrap: wrap;
 }
@@ -317,7 +365,7 @@ button.warning:hover:not(:disabled) {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 100px;
+  min-width: 50px;
 }
 
 .status-item .label {
@@ -363,6 +411,7 @@ button.warning:hover:not(:disabled) {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   position: relative;
   transition: all 0.3s;
+  margin-top: 4px;
 }
 
 .player-card.current-player {

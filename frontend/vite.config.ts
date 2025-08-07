@@ -26,6 +26,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
   },
   server: {
+    host: true, // Allow access from other devices on the network
     port: 3000,
   },
 })
